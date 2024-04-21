@@ -8,5 +8,5 @@ I would like to leave instructions here in case anyone is interested.
 - DSM and all Parts are under Copyright / Ownership or Registered Trademark by Synology Inc.
 
 ### THANKS
-All work was based on the Virtual DSM in a Docker container project by user kroese.
+All work was based on the Virtual DSM in a Docker container project by user kroese.<br>
 Link: https://github.com/vdsm/virtual-dsm

@@ -15,7 +15,7 @@ VDSM_DISPLAY="none"
 ### host.bin configs
 VDSM_H_API_CMD=6
 VDSM_H_APIT_TIMEOUT=50
-VDSM_H_API_HOST="127.0.0.1:2210"
+VDSM_H_API_HOST="127.0.0.1:2211"
 VDSM_H_PROG="$VDSM_DIR/host.bin"
 VDSM_H_PID="/var/run/$VDSM_NAME_host.pid"
 VDSM_H_CPU=2
@@ -30,6 +30,7 @@ start_service() {
   procd_open_instance
   procd_set_param command $VDSM_H_PROG
   procd_append_param command \
+    -addr=0.0.0.0:12346
     -cpu=$VDSM_H_CPU \
     -cpu_arch="$VDSM_H_CPU_ARCH" \
     -mac=$VDSM_H_MAC \

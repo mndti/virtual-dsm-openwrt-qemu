@@ -10,7 +10,7 @@ VDSM_PID="/var/run/vdsm.pid"
 VDSM_LOG="$VDSM_DIR/stdio.log"
 VDSM_CONFIG="$VDSM_DIR/config.cfg"
 VDSM_CPU="host"
-VDSM_DISPLAY="none"	
+VDSM_DISPLAY="none"
 
 ### host.bin configs
 VDSM_H_API_CMD=6
@@ -38,12 +38,13 @@ start_service() {
     -guestsn=$VDSM_H_GUESTSN
   procd_set_param pidfile $VDSM_H_PID
   procd_close_instance
-	
-  ## vdsm qemu	
+
+  ## vdsm qemu
   procd_open_instance
   procd_set_param command $VDSM_PROG
   procd_append_param command \
-    -cpu $VDSM_CPU \
+    -name $VDSM_NAME,process=$VDSM_NAME \
+    -cpu $VDSM_CPU -enable-kvm \
     -display $VDSM_DISPLAY \
     -nodefaults \
     -chardev stdio,id=charlog,logfile=$VDSM_LOG,signal=off \
@@ -71,11 +72,11 @@ stop_service() {
     logger -p notice -t QEMU $MSG
     kill -15 "$pid"
   fi
-  
+
   # kill host.bin if is running
   if [ -e /proc/$pid_host ]; then
     kill -9 $pid_host
-  fi  
+  fi
 }
 
 service_stopped() {

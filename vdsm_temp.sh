@@ -5,7 +5,7 @@ USE_PROCD=1
 
 VDSM_PROG="/usr/bin/qemu-system-x86_64"
 VDSM_NAME="vdsm"
-VDSM_DIR="/mnt/nvr/teste/teste/teste"
+VDSM_DIR="/mnt/vdsm"
 VDSM_PID="/var/run/vdsm.pid"
 VDSM_LOG="$VDSM_DIR/stdio.log"
 VDSM_CONFIG="$VDSM_DIR/config.cfg"
@@ -19,7 +19,7 @@ VDSM_H_API_HOST="127.0.0.1:2210"
 VDSM_H_PROG="$VDSM_DIR/host.bin"
 VDSM_H_PID="/var/run/vdsm_host.pid"
 VDSM_H_CPU=2
-VDSM_H_CPU_ARCH="Intel Celeron N5100,,"
+VDSM_H_CPU_ARCH="kvm64,,"
 VDSM_H_MAC="00:00:00:00:00:00"
 VDSM_H_MODEL="openwrt"
 VDSM_H_HOSTSN="0000000000000"

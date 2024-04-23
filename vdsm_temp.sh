@@ -8,7 +8,7 @@ VDSM_NAME="vdsm"
 VDSM_DIR="/mnt/vdsm"
 VDSM_PID="/var/run/vdsm.pid"
 VDSM_LOG="$VDSM_DIR/stdio.log"
-VDSM_CONFIG="$VDSM_DIR/config.cfg"
+VDSM_CONFIG="$VDSM_DIR/$VDSM_NAME.cfg"
 VDSM_CPU="host"
 VDSM_DISPLAY="none"
 

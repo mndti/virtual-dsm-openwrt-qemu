@@ -325,6 +325,7 @@ finish(){
     log "http://$ip_VDSM:5000"
 }
 
+clear
 log "$RED_INS Enter script language / Insira o idioma do script"
 read -p "default/padrao [en] (en/pt): " script_lang
 [[ "$script_lang" == "pt" ]] && SCRIPT_LANG=$script_lang

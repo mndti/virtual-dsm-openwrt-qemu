@@ -1,6 +1,5 @@
 #!/bin/sh
 # virtual-dsm installer script by @mndti(thiagoinfo)
-set -e
 
 SCRIPT_LANG=en
 PAT_DL="https://global.synologydownload.com/download/DSM/"
@@ -325,7 +324,6 @@ finish(){
     log "http://$ip_VDSM:5000"
 }
 
-clear
 log "$RED_INS Enter script language / Insira o idioma do script"
 read -p "default/padrao [en] (en/pt): " script_lang
 [[ "$script_lang" == "pt" ]] && SCRIPT_LANG=$script_lang

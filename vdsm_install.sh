@@ -25,6 +25,10 @@ VDSM_CFG_TMP="vdsm_temp.cfg"
 VDSM_INIT_TMP="vdsm_temp.sh"
 VDSM_PORT_SOCKET="12346"
 VDSM_H_API_PORT="2211"
+VDSM_H_MAC="00:00:00:00:00:00"
+VDSM_H_MODEL="Virtualhost"
+VDSM_H_HOSTSN="0000000000000"
+VDSM_H_GUESTSN="0000000000000"
 RED_INS="\e[0;31m[!]\e[0m"
 
 # Function to display log messages
@@ -38,7 +42,7 @@ log() {
 # Function to display error and exit
 function display_error_and_exit() {
     log "Error: $1 / Exiting." "Erro: $2 / Encerrando."
-	  exit 1
+    exit 1
 }
 update_vars(){
     VDSM_NAME=$vdsm_name
@@ -69,41 +73,41 @@ boot_system_img(){
     read -p "default/padrao [$VDSM_DIR]: " vdsm_dir
     if [ ! -z "$vdsm_dir" ]; then
         VDSM_DIR=$vdsm_dir
-		    VDSM_TMP_DIR=$vdsm_dir/tmp
+	VDSM_TMP_DIR=$vdsm_dir/tmp
     fi
 	
-	  log "Creating folders..." "Criando pastas..."
+    log "Creating folders..." "Criando pastas..."
     mkdir -p "$VDSM_TMP_DIR"
-	  ### wget .pat from synology site
+    
+    ### wget .pat from synology site
     log "Downloading $PAT_VERSION, please wait..." "Baixando $PAT_VERSION, aguarde..."
     down_pat
 	
-	  [ ! -s "$VDSM_TMP_DIR/$PAT_NAME" ] && display_error_and_exit "The PAT file not found" "O arquivo PAT nao foi encontrado"
+    [ ! -s "$VDSM_TMP_DIR/$PAT_NAME" ] && display_error_and_exit "The PAT file not found" "O arquivo PAT nao foi encontrado"
+    log "Preparing $VDSM_BOOT_FILE$VDSM_DISK_EXT file..." "Preparando o arquivo $VDSM_BOOT_FILE$VDSM_DISK_EXT..."
+    tar xpf "$VDSM_TMP_DIR/$PAT_NAME" -C "$VDSM_TMP_DIR/."
+    VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin.zip")
+    [ ! -s "$VDSM_BOOT" ] && display_error_and_exit "The PAT file contains no boot image." "O arquivo PAT nao contem a imagem de boot"
+    log "opkg install unzip..."
+    opkg install unzip
+    VDSM_BOOT=$(echo "$VDSM_BOOT" | head -c -5)
+    log "Extract $VDSM_BOOT_FILE..." "Extraindo $VDSM_BOOT_FILE..."
+    unzip -q -o "$VDSM_BOOT".zip -d "$VDSM_TMP_DIR"
+    log "Move $VDSM_BOOT_FILE to permanent directory..." "Movendo $VDSM_BOOT_FILE para a pasta permanente..."
+    VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin")
+    mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
 
-	  log "Preparing $VDSM_BOOT_FILE$VDSM_DISK_EXT file..." "Preparando o arquivo $VDSM_BOOT_FILE$VDSM_DISK_EXT..."
-	  tar xpf "$VDSM_TMP_DIR/$PAT_NAME" -C "$VDSM_TMP_DIR/."
-	  VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin.zip")
-	  [ ! -s "$VDSM_BOOT" ] && display_error_and_exit "The PAT file contains no boot image." "O arquivo PAT nao contem a imagem de boot"
-	  log "opkg install unzip..."
-	  opkg install unzip
-	  VDSM_BOOT=$(echo "$VDSM_BOOT" | head -c -5)
-	  log "Extract $VDSM_BOOT_FILE..." "Extraindo $VDSM_BOOT_FILE..."
-	  unzip -q -o "$VDSM_BOOT".zip -d "$VDSM_TMP_DIR"
-	  log "Move $VDSM_BOOT_FILE to permanent directory..." "Movendo $VDSM_BOOT_FILE para a pasta permanente..."
-	  VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin")
-	  mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
-
-	  log "Download $VDSM_CFG_TMP..." "Baixando $VDSM_CFG_TMP..." && down_cfg
-	  [ ! -s "$VDSM_TMP_DIR/$VDSM_CFG_TMP" ] && display_error_and_exit "The $VDSM_CFG_TMP file not found" "O arquivo $VDSM_CFG_TMP nao foi encontrado"
-	  log "Save port $VDSM_PORT_SOCKET to cfg..." "Salvando porta $VDSM_PORT_SOCKET para cfg..."
-	  sed -i "s/port = .*/port = \"$VDSM_PORT_SOCKET\"/" $VDSM_TMP_DIR/$VDSM_CFG_TMP
+    log "Download $VDSM_CFG_TMP..." "Baixando $VDSM_CFG_TMP..." && down_cfg
+    [ ! -s "$VDSM_TMP_DIR/$VDSM_CFG_TMP" ] && display_error_and_exit "The $VDSM_CFG_TMP file not found" "O arquivo $VDSM_CFG_TMP nao foi encontrado"
+    log "Save port $VDSM_PORT_SOCKET to cfg..." "Salvando porta $VDSM_PORT_SOCKET para cfg..."
+    sed -i "s/port = .*/port = \"$VDSM_PORT_SOCKET\"/" $VDSM_TMP_DIR/$VDSM_CFG_TMP
     log "Save $VDSM_BOOT_FILE$VDSM_DISK_EXT to cfg..." "Salvando $VDSM_BOOT_FILE$VDSM_DISK_EXT para cfg..."
-	  disk_cfg "$VDSM_BOOT_FILE" "$VDSM_DIR" "0xa"
-	  ### create system disk
+    disk_cfg "$VDSM_BOOT_FILE" "$VDSM_DIR" "0xa"
+    ### create system disk
     log "opkg install qemu-img"
     opkg install qemu-img
-	  log "Create $VDSM_SYSTEM_FILE$VDSM_DISK_EXT with size of ${VDSM_SYSTEM_SIZE}B..." "Criando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT com o tamanho de ${VDSM_SYSTEM_SIZE}B..."
-	  qemu-img create -f raw $VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT $VDSM_SYSTEM_SIZE
+    log "Create $VDSM_SYSTEM_FILE$VDSM_DISK_EXT with size of ${VDSM_SYSTEM_SIZE}B..." "Criando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT com o tamanho de ${VDSM_SYSTEM_SIZE}B..."
+    qemu-img create -f raw $VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT $VDSM_SYSTEM_SIZE
     [ ! -s "$VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT" ] && display_error_and_exit "The $VDSM_SYSTEM_FILE$VDSM_DISK_EXT file not found" "O arquivo $VDSM_SYSTEM_FILE$VDSM_DISK_EXT nao foi encontrado"
     log "Save $VDSM_SYSTEM_FILE$VDSM_DISK_EXT to cfg..." "Salvando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT para cfg..."
     disk_cfg "$VDSM_SYSTEM_FILE" "$VDSM_DIR" "0xb"
@@ -126,7 +130,7 @@ disk_cfg(){
   bus = \"hw-$disk_name.0\"
   drive = \"$disk_name\""
 
-  echo "$DISK_CFG" >> $VDSM_TMP_DIR/$VDSM_CFG_TMP
+    echo "$DISK_CFG" >> $VDSM_TMP_DIR/$VDSM_CFG_TMP
 }
 
 net_cfg(){
@@ -142,7 +146,7 @@ net_cfg(){
   type = \"bridge\"
   br = \"$bridge\""
 
-  echo "$NET_CFG" >> $VDSM_TMP_DIR/$VDSM_CFG_TMP
+    echo "$NET_CFG" >> $VDSM_TMP_DIR/$VDSM_CFG_TMP
 }
 
 create_net(){
@@ -196,12 +200,12 @@ create_disk(){
 }
 
 create_disks(){
-	  ### disk1 - required
-	  create_disk "$VDSM_DISK1_FILE" "0xc"
-	  ### disk2 - optional
-	  log "$RED_INS Do you want add $VDSM_DISK2_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK2_FILE?"
-	  read -p "default/padrao [n] (y/n): " choice_disk2
-	  if [[ "$choice_disk2" == "y" || "$choice_disk2" == "Y" ]]; then
+    ### disk1 - required
+    create_disk "$VDSM_DISK1_FILE" "0xc"
+    ### disk2 - optional
+    log "$RED_INS Do you want add $VDSM_DISK2_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK2_FILE?"
+    read -p "default/padrao [n] (y/n): " choice_disk2
+    if [[ "$choice_disk2" == "y" || "$choice_disk2" == "Y" ]]; then
         create_disk "$VDSM_DISK2_FILE" "0xd"
         ### disk3 - optional
         log "$RED_INS Do you want add $VDSM_DISK3_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK3_FILE?"
@@ -215,7 +219,7 @@ create_disks(){
                 create_disk "$VDSM_DISK4_FILE" "0xf"
             fi
         fi
-	  fi
+    fi
 }
 
 cpu_ram_cfg(){
@@ -258,12 +262,43 @@ create_configs(){
     chmod +x /etc/init.d/$VDSM_NAME
 }
 
+init_d_mac_serial(){
+    log "$RED_INS Do you want to define the mac/model/serial?" "$RED_INS Voce quer definir o mac/modelo/serial?"
+    read -p "default/padrao [n] (y/n): " choice_mac_serial
+    if [[ "$choice_mac_serial" == "y" || "$choice_mac_serial" == "Y" ]]; then
+        log "$RED_INS Enter the MAC host" "$RED_INS Insira o MAC do host"
+        read -p "default/padrao [$VDSM_H_MAC]: " vdsm_h_mac
+        [[ ! -z "$vdsm_h_mac" ]] && VDSM_H_MAC=$vdsm_h_mac
+        log "$RED_INS Enter the model host" "$RED_INS Insira o modelo do host"
+        read -p "default/padrao [$VDSM_H_MODEL]: " vdsm_h_model
+        [[ ! -z "$vdsm_h_model" ]] && VDSM_H_MODEL=$vdsm_h_model
+        log "$RED_INS Enter the serial host" "$RED_INS Insira o serial do host"
+        read -p "default/padrao [$VDSM_H_HOSTSN]: " vdsm_h_hostsn
+        [[ ! -z "$vdsm_h_hostsn" ]] && VDSM_H_HOSTSN=$vdsm_h_hostsn
+        log "$RED_INS Enter the serial guest" "$RED_INS Insira o serial do convidado"
+        read -p "default/padrao [$VDSM_H_GUESTSN]: " vdsm_h_guestsn
+        [[ ! -z "$vdsm_h_guestsn" ]] && VDSM_H_GUESTSN=$vdsm_h_guestsn
+    fi
+}
+
 init_d_update(){
 
     VDSM_CPU=$1
     VDSM_DIR_E=$(echo "${VDSM_DIR//\//\\/}")
 
     log "Update $VDSM_INIT_TMP script..." "Atualizando $VDSM_INIT_TMP script..."
+
+    init_h_mac=s/VDSM_H_MAC=.*/VDSM_H_MAC=\"$VDSM_H_MAC\"/
+    sed -i "$init_h_mac" $VDSM_TMP_DIR/$VDSM_INIT_TMP
+
+    init_h_model=s/VDSM_H_MODEL=.*/VDSM_H_MODEL=\"$VDSM_H_MODEL\"/
+    sed -i "$init_h_model" $VDSM_TMP_DIR/$VDSM_INIT_TMP
+
+    init_h_hostsn=s/VDSM_H_HOSTSN=.*/VDSM_H_HOSTSN=\"$VDSM_H_HOSTSN\"/
+    sed -i "$init_h_hostsn" $VDSM_TMP_DIR/$VDSM_INIT_TMP
+
+    init_h_guestsn=s/VDSM_H_GUESTSN=.*/VDSM_H_GUESTSN=\"$VDSM_H_GUESTSN\"/
+    sed -i "$init_h_guestsn" $VDSM_TMP_DIR/$VDSM_INIT_TMP
 
     init_name=s/VDSM_NAME=.*/VDSM_NAME=\"$VDSM_NAME\"/
     sed -i "$init_name" $VDSM_TMP_DIR/$VDSM_INIT_TMP
@@ -336,22 +371,23 @@ if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
     read -p "default/padrao [$VDSM_NAME]: " vdsm_name
     [[ "$vdsm_name" =~ [^a-z0-9_-] ]] && display_error_and_exit "The name $vdsm_name is not allowed $vdsm_name file not found" "O nome $vdsm_name nao e permitido"
     [[ ! -z "$vdsm_name" ]] && update_vars
+    init_d_mac_serial
     #### boot
     boot_system_img
     #### disks
-	  create_disks
-	  ### network
-	  create_nets
-	  ### configs update
-	  create_configs
-	  ### install required packages
-	  install_required_pkg
+    create_disks
+    ### network
+    create_nets
+    ### configs update
+    create_configs
+    ### install required packages
+    install_required_pkg
     ### download host.bin
     down_host_bin
-	  ### delete temp
-	  delete_temp
-	  ### finish
-	  finish
+    ### delete temp
+    delete_temp
+    ### finish
+    finish
 else
     log "\e[0;31m[exit]\e[0m Script aborted. No changes were made." "\e[0;31m[encerrado]\e[0m Script abortado. Nenhuma alteracao foi feita."
 fi

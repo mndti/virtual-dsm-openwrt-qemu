@@ -8,7 +8,9 @@ I would like to leave instructions here in case anyone is interested.
 - DSM and all Parts are under Copyright / Ownership or Registered Trademark by Synology Inc.
 
 ## install / instalar
-`sh <(wget -qO- https://raw.githubusercontent.com/mndti/virtual-dsm-openwrt-qemu/main/vdsm_install.sh)`
+<pre>
+  <code>sh <(wget -qO- https://raw.githubusercontent.com/mndti/virtual-dsm-openwrt-qemu/main/vdsm_install.sh)</code>
+</pre>
 
 **required opkg**
 - curl unzip

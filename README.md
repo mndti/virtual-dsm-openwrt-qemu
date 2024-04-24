@@ -8,6 +8,14 @@ I would like to leave instructions here in case anyone is interested.
   <code>sh <(wget -qO- https://raw.githubusercontent.com/mndti/virtual-dsm-openwrt-qemu/main/vdsm_install.sh)</code>
 </pre>
 
+## start / stop / iniciar / parar
+[virtual-dsm] is the default name, if changed use the defined name.<br>
+[virtual-dsm] é o nome padrão, se alterado, use o nome definido.
+<pre>
+  <code>/etc/init.d/virtual-dsm start</code>
+  <code>/etc/init.d/virtual-dsm stop</code>
+</pre>
+
 ### Requirements / Requisitos
 **hardware**
 - CPU: x86_64 with KVM
@@ -28,12 +36,16 @@ All work was based on the Virtual DSM in a Docker container project by user kroe
 Link: https://github.com/vdsm/virtual-dsm
 
 **Attention**
+- This software should be used for testing purposes only!!!
 - Commercial use is not permitted and strictly forbidden!!!
-- DSM and all Parts are under Copyright / Ownership or Registered Trademark by Synology Inc.
+- DSM and all Parts are under Copyright / Ownership or Registered Trademark by Synology Inc!!!
+- This project is not affiliated, sponsored, or endorsed by Synology, Inc!!!
 
 **Atenção**
+- Este software deve ser usado apenas para fins de testes!!!
 - O uso comercial não é permitido e estritamente proibido!!!
 - A Synology e seus licenciantes são proprietários e retém todos os direitos, títulos e interesses sobre o Software e todos os direitos autorais e de propriedade intelectual nele contidos!!!
+- Este projeto não é afiliado, patrocinado ou endossado pela Synology, Inc!!!
 
 **License**<br>
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

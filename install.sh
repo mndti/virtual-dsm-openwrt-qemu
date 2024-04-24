@@ -37,8 +37,13 @@ log() {
 
 # Function to display error and exit
 function display_error_and_exit() {
-    log "Error: $1 Exiting." "Erro: $2 Encerrando."
+    log "Error: $1 / Exiting." "Erro: $2 / Encerrando."
 	  exit 1
+}
+update_vars(){
+    VDSM_NAME=$vdsm_name
+    VDSM_DIR="/mnt/$VDSM_NAME"
+    VDSM_TMP_DIR="$VDSM_DIR/tmp"
 }
 
 down_pat(){
@@ -61,7 +66,7 @@ down_host_bin(){
 
 boot_system_img(){
     log "$RED_INS Enter the path to virtual dsm" "$RED_INS Insira o caminho para o virtual dsm"
-    read -p "default/padrao[$VDSM_DIR]: " vdsm_dir
+    read -p "default/padrao [$VDSM_DIR]: " vdsm_dir
     if [ ! -z "$vdsm_dir" ]; then
         VDSM_DIR=$vdsm_dir
 		    VDSM_TMP_DIR=$vdsm_dir/tmp
@@ -146,7 +151,7 @@ create_net(){
     lan_name=$3
     net_mac=00:60:2f$(hexdump -n3 -e '/1 ":%02x"' /dev/random)
     log "$RED_INS Enter name of the bridge interface $net_dev" "$RED_INS Insira o nome da ponte para a interface $net_dev"
-    read -p "default/padrao[$VDSM_BRIDGE]: " vdsm_bridge
+    read -p "default/padrao [$VDSM_BRIDGE]: " vdsm_bridge
     if [ -z "$vdsm_bridge" ]; then
         vdsm_bridge=$VDSM_BRIDGE
     fi
@@ -161,7 +166,7 @@ create_nets(){
     create_net "net0" "br0" "lan1"
     ### net1 - optional
     log "$RED_INS Do you want add another lan?" "$RED_INS Voce quer adicionar outra lan?"
-    read -p "default/padrao[n] (y/n): " choice_net1
+    read -p "default/padrao [n] (y/n): " choice_net1
     if [[ "$choice_net1" == "y" || "$choice_net1" == "Y" ]]; then
         create_net "net1" "br1"
     fi
@@ -172,12 +177,12 @@ create_disk(){
     disk_addr=$2
     disk_file=$disk_name$VDSM_DISK_EXT
     log "$RED_INS Enter the path to $disk_name" "$RED_INS Insira o caminho para o $disk_name"
-    read -p "default/padrao[$VDSM_DIR]: " vdsm_disk_path
+    read -p "default/padrao [$VDSM_DIR]: " vdsm_disk_path
     if [ -z "$vdsm_disk_path" ]; then
         vdsm_disk_path=$VDSM_DIR
     fi
     log "$RED_INS Enter $disk_name size" "$RED_INS Insira o tamanho do $disk_name"
-    read -p "default/padrao[$VDSM_DISK_SIZE]: " vdsm_disk_size
+    read -p "default/padrao [$VDSM_DISK_SIZE]: " vdsm_disk_size
     if [ -z "$vdsm_disk_size" ]; then
         vdsm_disk_size=$VDSM_DISK_SIZE
     fi
@@ -195,17 +200,17 @@ create_disks(){
 	  create_disk "$VDSM_DISK1_FILE" "0xc"
 	  ### disk2 - optional
 	  log "$RED_INS Do you want add $VDSM_DISK2_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK2_FILE?"
-	  read -p "default/padrao[n] (y/n): " choice_disk2
+	  read -p "default/padrao [n] (y/n): " choice_disk2
 	  if [[ "$choice_disk2" == "y" || "$choice_disk2" == "Y" ]]; then
         create_disk "$VDSM_DISK2_FILE" "0xd"
         ### disk3 - optional
         log "$RED_INS Do you want add $VDSM_DISK3_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK3_FILE?"
-        read -p "default/padrao[n] (y/n): " choice_disk3
+        read -p "default/padrao [n] (y/n): " choice_disk3
         if [[ "$choice_disk3" == "y" || "$choice_disk3" == "Y" ]]; then
             create_disk "$VDSM_DISK3_FILE" "0xe"
             ### disk4 - optional
             log "$RED_INS Do you want add $VDSM_DISK4_FILE?" "$RED_INS Voce quer adicionar $VDSM_DISK4_FILE?"
-            read -p "default/padrao[n] (y/n): " choice_disk4
+            read -p "default/padrao [n] (y/n): " choice_disk4
             if [[ "$choice_disk4" == "y" || "$choice_disk4" == "Y" ]]; then
                 create_disk "$VDSM_DISK4_FILE" "0xf"
             fi
@@ -227,12 +232,12 @@ cpu_ram_cfg(){
 
 create_configs(){
     log "$RED_INS Enter the number of processor cores, only numbers (example: 1/2/4)" "$RED_INS Insira a quantidade de núcleos do processador, somente numeros (exemplo: 1/2/4)"
-    read -p "default/padrao[$VDSM_CPU]: " vdsm_cpu
+    read -p "default/padrao [$VDSM_CPU]: " vdsm_cpu
     if [ -z "$vdsm_cpu" ]; then
         vdsm_cpu=$VDSM_CPU
     fi
     log "$RED_INS Enter the amount of ram memory, only numbers (example: 1048/2048/4096)" "$RED_INS Insira a quantidade de memoria RAM, somente numeros (exemplo: 1048/2048/4096)"
-    read -p "default/padrao[$VDSM_RAM]: " vdsm_ram
+    read -p "default/padrao [$VDSM_RAM]: " vdsm_ram
     if [ -z "$vdsm_ram" ]; then
         vdsm_ram=$VDSM_RAM
     fi
@@ -320,16 +325,17 @@ finish(){
 }
 
 log "$RED_INS Enter script language / Insira o idioma do script"
-read -p "default/padrao[en] (en/pt): " script_lang
+read -p "default/padrao [en] (en/pt): " script_lang
 [[ "$script_lang" == "pt" ]] && SCRIPT_LANG=$script_lang
 
 log "$RED_INS Do you want to continue?" "$RED_INS Voce quer continuar?"
-read -p "default/padrao[n] (y/n): " choice
+read -p "default/padrao [n] (y/n): " choice
 
-if [[ $choice == "y" || $choice == "Y" ]]; then
-    log "$RED_INS Enter the name to virtual dsm" "$RED_INS Insira o nome para o virtual dsm"
-    read -p "default/padrao[$VDSM_NAME]: " vdsm_name
-    [[ ! -z "$vdsm_name" ]] && VDSM_NAME=$vdsm_name
+if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
+    log "$RED_INS Enter the name to virtual dsm (a-z0-9_-)" "$RED_INS Insira o nome para o virtual dsm (a-z0-9_-)"
+    read -p "default/padrao [$VDSM_NAME]: " vdsm_name
+    [[ "$vdsm_name" =~ [^a-z0-9_-] ]] && display_error_and_exit "The name $vdsm_name is not allowed $vdsm_name file not found" "O nome $vdsm_name nao e permitido"
+    [[ ! -z "$vdsm_name" ]] && update_vars
     #### boot
     boot_system_img
     #### disks
@@ -347,6 +353,5 @@ if [[ $choice == "y" || $choice == "Y" ]]; then
 	  ### finish
 	  finish
 else
-    clear
-    log "\nScript aborted. No changes were made." "\nScript abortado. Nenhuma alteracao foi feita."
+    log "\e[0;31m[exit]\e[0m Script aborted. No changes were made." "\e[0;31m[encerrado]\e[0m Script abortado. Nenhuma alteracao foi feita."
 fi

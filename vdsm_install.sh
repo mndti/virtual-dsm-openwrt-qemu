@@ -1,5 +1,6 @@
 #!/bin/sh
 # virtual-dsm installer script by @mndti(thiagoinfo)
+set -e
 
 SCRIPT_LANG=en
 PAT_DL="https://global.synologydownload.com/download/DSM/"

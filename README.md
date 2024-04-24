@@ -36,6 +36,12 @@
 - LAN: 4x, Intel i225-V, 2.5G
 - Openwrt: 23.05.3 stable
 
+### Limitations / Limitações
+- The Virtual Machine Manager package is not available
+- Surveillance Station will not include any free licenses
+- Virtual Machine Manager não está disponível
+- Surveillance Station não incluirá nenhuma licença gratuita
+
 ### Virtual DSM - OpenWrt - docker
 Link: https://github.com/vdsm/virtual-dsm
 

@@ -1,7 +1,8 @@
 # Virtual DSM - OpenWrt - qemu-system-x86_64
 
-After many tests, I managed to run virtual dsm in openwrt > qemu.<br>
-I would like to leave instructions here in case anyone is interested.
+- This project was created for testing and deciding to share with other users.
+- The English language was translated by Google, so if there is any error, I apologize, as I am Brazilian.
+- Este projeto foi criado para testes e decidi compartilhar com outros usuários.
 
 ## Install / Instalar
 <pre>

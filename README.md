@@ -28,6 +28,13 @@ I would like to leave instructions here in case anyone is interested.
 - kmod-kvm-intel intel-microcode iucode-tool (intel)
 - kmod-kvm-amd amd64-microcode (amd)
 
+**Testing on / Testado em**
+- CPU: Intel N5100
+- RAM: 12GB
+- NVME: 256GB
+- LAN: 4x, Intel i225-V, 2.5G
+- Openwrt: 23.05.3 stable
+
 ### Virtual DSM - OpenWrt - docker
 Link: https://github.com/vdsm/virtual-dsm
 

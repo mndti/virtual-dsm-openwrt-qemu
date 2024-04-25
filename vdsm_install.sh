@@ -22,6 +22,7 @@ VDSM_BRIDGE="br-lan"
 VDSM_CPU=2
 VDSM_RAM=2048
 VDSM_CFG_TMP="vdsm_temp.cfg"
+VDSM_CFG="config.cfg"
 VDSM_INIT_TMP="vdsm_temp.sh"
 VDSM_PORT_SOCKET="12346"
 VDSM_H_API_PORT="2211"
@@ -44,6 +45,7 @@ function display_error_and_exit() {
     log "Error: $1 / Exiting." "Erro: $2 / Encerrando."
     exit 1
 }
+
 update_vars(){
     VDSM_NAME=$vdsm_name
     VDSM_DIR="/mnt/$VDSM_NAME"
@@ -251,7 +253,7 @@ create_configs(){
     ## remove ^M endline file cfg
     sed -i "s/\r//g" $VDSM_TMP_DIR/$VDSM_CFG_TMP
     log "Copy $VDSM_INIT_TMP to $VDSM_DIR..." "Copiando $VDSM_INIT_TMP para $VDSM_DIR..."
-    cp $VDSM_TMP_DIR/$VDSM_CFG_TMP $VDSM_DIR/$VDSM_NAME.cfg
+    cp $VDSM_TMP_DIR/$VDSM_CFG_TMP $VDSM_DIR/$VDSM_CFG
 
     log "Download $VDSM_INIT_TMP..." "Baixando $VDSM_INIT_TMP..." && down_init_d
     [ ! -s "$VDSM_TMP_DIR/$VDSM_INIT_TMP" ] && display_error_and_exit "The $VDSM_INIT_TMP file not found" "O arquivo $VDSM_INIT_TMP nao foi encontrado"

@@ -1,9 +1,23 @@
 #!/bin/sh
 # virtual-dsm installer script by @mndti(thiagoinfo)
+set -e
+
+# trap ctrl+c and error
+trap abort_exit ERR
+trap ctrl_c SIGINT
+
+ctrl_c(){
+   log " (You pressed ctrl+c)" "(Voce pressionou ctrl+c)" && abort_exit
+}
+
+function abort_exit() {
+    display_error_and_exit "Aborted" "Interrompido"
+}
 
 SCRIPT_LANG=en
 PAT_DL="https://global.synologydownload.com/download/DSM/"
 PAT_VERSION="release/7.0.1/42218/DSM_VirtualDSM_42218.pat"
+PAT_OLD="release/6.2.4/25556/DSM_VirtualDSM_25556.pat"
 PAT_NAME="vdsm_temp.pat"
 VDSM_NAME="virtual-dsm"
 VDSM_DIR="/mnt/$VDSM_NAME"
@@ -42,7 +56,7 @@ log() {
 
 # Function to display error and exit
 function display_error_and_exit() {
-    log "Error: $1 / Exiting." "Erro: $2 / Encerrando."
+    log "Error: $1 / Exiting." "Erro: $2 / Encerrando." && delete_error	
     exit 1
 }
 
@@ -79,8 +93,8 @@ boot_system_img(){
     mkdir -p "$VDSM_TMP_DIR"
     
     ### wget .pat from synology site
-    log "Downloading $PAT_VERSION, please wait..." "Baixando $PAT_VERSION, aguarde..."
-    down_pat	
+    log "Downloading $PAT_VERSION, please wait..." "Baixando $PAT_VERSION, aguarde..." && down_pat
+    	
     [ ! -s "$VDSM_TMP_DIR/$PAT_NAME" ] && display_error_and_exit "The PAT file not found" "O arquivo PAT nao foi encontrado"
 
     log "Preparing $VDSM_BOOT_FILE$VDSM_DISK_EXT file..." "Preparando o arquivo $VDSM_BOOT_FILE$VDSM_DISK_EXT..."
@@ -318,16 +332,15 @@ install_pkg(){
 
 install_required_pkg(){
 
-    install_pkg "curl" "opkg install curl ..."    
+    install_pkg "curl" "opkg install curl ..."  
     install_pkg "kmod-tun qemu-bridge-helper qemu-x86_64-softmmu" "opkg install kmod-tun qemu-bridge-helper qemu-x86_64-softmmu ..."
 
+    is_cpu=$(cat /proc/cpuinfo | grep vendor_id | sed -e "s/^.*: //" | head -1)
     ### intel
-    is_intel=$(cat /proc/cpuinfo | grep GenuineIntel)
-    [[ ! -z "$is_intel" ]] && install_pkg "kmod-kvm-intel intel-microcode iucode-tool" "opkg install kmod-kvm-intel intel-microcode iucode-tool ..."
-
+    if [ "$is_cpu" == "GenuineIntel" ]; then install_pkg "kmod-kvm-intel intel-microcode iucode-tool" "opkg install kmod-kvm-intel intel-microcode iucode-tool ..."; fi
     ### amd
-    is_amd=$(cat /proc/cpuinfo | grep AuthenticAMD)
-    [[ ! -z "$is_amd" ]] && install_pkg " kmod-kvm-amd amd64-microcode" "opkg install kmod-kvm-amd amd64-microcode ..."
+    if [ "$is_cpu" == "AuthenticAMD" ]; then install_pkg "kmod-kvm-amd amd64-microcode" "opkg install kmod-kvm-amd amd64-microcode ..."; fi
+
 }
 
 
@@ -335,6 +348,17 @@ install_required_pkg(){
 delete_temp(){
     log "Delete temp folder and files..." "Excluindo pasta e arquivos temporarios..."
     rm -r $VDSM_TMP_DIR/* && rmdir $VDSM_TMP_DIR
+}
+
+delete_error(){
+    if [ -s "$VDSM_DIR" ]; then
+	log "Delete temp folder and files..." "Excluindo pasta e arquivos temporarios..."
+	if [[ -s "/etc/init.d/$VDSM_NAME" ]]; then
+	    /etc/init.d/$VDSM_NAME stop
+	    rm /etc/init.d/$VDSM_NAME
+	fi
+    	rm -r $VDSM_DIR/* && rmdir $VDSM_DIR
+    fi
 }
 
 finish(){
@@ -345,8 +369,12 @@ finish(){
     /etc/init.d/$VDSM_NAME start
     while true; do ping -c1 virtualdsm &>/dev/null && break; done
     ip_VDSM=$(ping -c1 virtualdsm | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')
+    if [ $vdsm_version == 6 ]; then
+	log "You selected version 6, remember to download PAT and install manually!" "Você selecionou a versão 6, lembre-se de baixar o PAT e instalar manualmente!"
+	log "PAT: https://global.synologydownload.com/download/DSM/release/6.2.4/25556/DSM_VirtualDSM_25556.pat"
+    fi
     log "Access the link below to complete the installation of Virtual DSM..." "Acesse o link abaixo para concluir a instalacao do Virtual DSM"
-    log "http://$ip_VDSM:5000"
+    log "$RED_INS http://$ip_VDSM:5000"
 }
 
 log "$RED_INS Enter script language / Insira o idioma do script"
@@ -357,10 +385,16 @@ log "$RED_INS Do you want to continue?" "$RED_INS Voce quer continuar?"
 read -p "default/padrao [n] (y/n): " choice
 
 if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
+    ## version
+    log "$RED_INS Enter the version to virtual dsm (7/6)" "$RED_INS Insira a versao para o virtual dsm (7/6)"
+    read -p "default/padrao [7]: " vdsm_version
+    [[ "$vdsm_version" == 6 ]] && PAT_VERSION=$PAT_OLD
+    # name
     log "$RED_INS Enter the name to virtual dsm (a-z0-9_-)" "$RED_INS Insira o nome para o virtual dsm (a-z0-9_-)"
     read -p "default/padrao [$VDSM_NAME]: " vdsm_name
     [[ "$vdsm_name" =~ [^a-z0-9_-] ]] && display_error_and_exit "The name $vdsm_name is not allowed $vdsm_name file not found" "O nome $vdsm_name nao e permitido"
     [[ ! -z "$vdsm_name" ]] && update_vars
+    # mac/host/serial
     init_d_mac_serial
     #### boot
     boot_system_img

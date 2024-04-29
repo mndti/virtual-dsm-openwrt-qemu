@@ -109,8 +109,8 @@ boot_system_img(){
     unzip -q -o "$VDSM_BOOT".zip -d "$VDSM_TMP_DIR"
     log "Move $VDSM_BOOT_FILE to permanent directory..." "Movendo $VDSM_BOOT_FILE para a pasta permanente..."
     VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin")
-    qemu-img convert -f raw -O qcow2 $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
-    #mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
+    #qemu-img convert -f raw -O qcow2 $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
+    mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
     
     log "Download $VDSM_CFG_TMP..." "Baixando $VDSM_CFG_TMP..." && down_cfg
     [ ! -s "$VDSM_TMP_DIR/$VDSM_CFG_TMP" ] && display_error_and_exit "The $VDSM_CFG_TMP file not found" "O arquivo $VDSM_CFG_TMP nao foi encontrado"

@@ -54,6 +54,7 @@ start_service() {
     -chardev stdio,id=charlog,logfile=$VDSM_LOG,signal=off \
     -serial chardev:charlog \
     -readconfig $VDSM_CONFIG
+  procd_set_param stderr 1
   procd_set_param pidfile $VDSM_PID
   procd_set_param term_timeout 80
   procd_close_instance

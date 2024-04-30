@@ -5,9 +5,7 @@
 - Este projeto foi criado para testes e decidi compartilhar com outros usuários.
 
 ## Install / Instalar
-<pre>
-  <code>sh <(wget -qO- https://raw.githubusercontent.com/mndti/virtual-dsm-openwrt-qemu/main/vdsm_install.sh)</code>
-</pre>
+<pre><code>sh <(wget -qO- https://raw.githubusercontent.com/mndti/virtual-dsm-openwrt-qemu/main/vdsm_install.sh)</code></pre>
 
 ## start / stop / iniciar / parar
 [virtual-dsm] is the default name, if changed use the defined name.<br>

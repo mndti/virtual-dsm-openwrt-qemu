@@ -23,7 +23,7 @@ VDSM_NAME="virtual-dsm"
 VDSM_DIR="/mnt/$VDSM_NAME"
 VDSM_TMP_DIR="$VDSM_DIR/tmp"
 VDSM_DISK_PREF="syno"
-VDSM_DISK_EXT=".img"
+VDSM_DISK_EXT=".qcow2"
 VDSM_BOOT_FILE="${VDSM_DISK_PREF}boot"
 VDSM_SYSTEM_FILE="${VDSM_DISK_PREF}system"
 VDSM_SYSTEM_SIZE=12G #minimum is 12gb
@@ -109,8 +109,8 @@ boot_system_img(){
     unzip -q -o "$VDSM_BOOT".zip -d "$VDSM_TMP_DIR"
     log "Move $VDSM_BOOT_FILE to permanent directory..." "Movendo $VDSM_BOOT_FILE para a pasta permanente..."
     VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin")
-    #qemu-img convert -f raw -O qcow2 $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
-    mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
+    qemu-img convert -f raw -O qcow2 $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
+    #mv $VDSM_BOOT $VDSM_DIR/$VDSM_BOOT_FILE$VDSM_DISK_EXT
     
     log "Download $VDSM_CFG_TMP..." "Baixando $VDSM_CFG_TMP..." && down_cfg
     [ ! -s "$VDSM_TMP_DIR/$VDSM_CFG_TMP" ] && display_error_and_exit "The $VDSM_CFG_TMP file not found" "O arquivo $VDSM_CFG_TMP nao foi encontrado"
@@ -122,7 +122,7 @@ boot_system_img(){
     ### create system disk
     install_pkg "qemu-img" "opkg install qemu-img..."
     log "Create $VDSM_SYSTEM_FILE$VDSM_DISK_EXT with size of ${VDSM_SYSTEM_SIZE}B..." "Criando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT com o tamanho de ${VDSM_SYSTEM_SIZE}B..."
-    qemu-img create -f raw $VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT $VDSM_SYSTEM_SIZE
+    qemu-img create -f qcow2 $VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT $VDSM_SYSTEM_SIZE
     [ ! -s "$VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT" ] && display_error_and_exit "The $VDSM_SYSTEM_FILE$VDSM_DISK_EXT file not found" "O arquivo $VDSM_SYSTEM_FILE$VDSM_DISK_EXT nao foi encontrado"
     log "Save $VDSM_SYSTEM_FILE$VDSM_DISK_EXT to cfg..." "Salvando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT para cfg..."
     disk_cfg "$VDSM_SYSTEM_FILE" "$VDSM_DIR" "0xb"
@@ -137,7 +137,7 @@ disk_cfg(){
   addr = \"$disk_addr\"
 [drive \"$disk_name\"]
   file = \"$disk_file/$disk_name$VDSM_DISK_EXT\"
-  format = \"raw\"
+  format = \"qcow2\"
   if = \"none\"
   cache = \"none\"
 [device \"$disk_name\"]
@@ -206,7 +206,7 @@ create_disk(){
     log "Create $disk_name with $vdsm_disk_size..." "Criando $disk_name com $vdsm_disk_size..."
     mkdir -p "$vdsm_disk_path"
     drive_file=$vdsm_disk_path/$disk_file
-    qemu-img create -f raw $drive_file $vdsm_disk_size
+    qemu-img create -f qcow2 $drive_file $vdsm_disk_size
     [ ! -s "$drive_file" ] && display_error_and_exit "The $disk_file file not found" "O arquivo $disk_file nao foi encontrado"
 
     log "Save $disk_file to cfg..." "Salvando $disk_file para cfg..."

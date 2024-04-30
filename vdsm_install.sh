@@ -144,6 +144,7 @@ disk_cfg(){
   driver = \"scsi-hd\"
   bus = \"hw-$disk_name.0\"
   drive = \"$disk_name\""
+  rotation_rate = \"1\"
 
     echo "$DISK_CFG" >> $VDSM_TMP_DIR/$VDSM_CFG_TMP
 }

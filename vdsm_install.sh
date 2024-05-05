@@ -104,6 +104,7 @@ boot_system_img(){
 
     opkg update
     install_pkg "unzip" "opkg install unzip..."
+    install_pkg "qemu-img" "opkg install qemu-img..."
 
     VDSM_BOOT=$(echo "$VDSM_BOOT" | head -c -5)
     log "Extract $VDSM_BOOT_FILE..." "Extraindo $VDSM_BOOT_FILE..."
@@ -120,8 +121,7 @@ boot_system_img(){
     log "Save $VDSM_BOOT_FILE$VDSM_DISK_EXT to cfg..." "Salvando $VDSM_BOOT_FILE$VDSM_DISK_EXT para cfg..."
     disk_cfg "$VDSM_BOOT_FILE" "$VDSM_DIR" "0xa"
 
-    ### create system disk
-    install_pkg "qemu-img" "opkg install qemu-img..."
+    ### create system disk    
     log "Create $VDSM_SYSTEM_FILE$VDSM_DISK_EXT with size of ${VDSM_SYSTEM_SIZE}B..." "Criando $VDSM_SYSTEM_FILE$VDSM_DISK_EXT com o tamanho de ${VDSM_SYSTEM_SIZE}B..."
     qemu-img create -f qcow2 $VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT $VDSM_SYSTEM_SIZE
     [ ! -s "$VDSM_DIR/$VDSM_SYSTEM_FILE$VDSM_DISK_EXT" ] && display_error_and_exit "The $VDSM_SYSTEM_FILE$VDSM_DISK_EXT file not found" "O arquivo $VDSM_SYSTEM_FILE$VDSM_DISK_EXT nao foi encontrado"

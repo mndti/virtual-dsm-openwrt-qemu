@@ -102,7 +102,8 @@ boot_system_img(){
     VDSM_BOOT=$(find "$VDSM_TMP_DIR" -name "*.bin.zip")
     [ ! -s "$VDSM_BOOT" ] && display_error_and_exit "The PAT file contains no boot image." "O arquivo PAT nao contem a imagem de boot"
 
-    opkg update && install_pkg "unzip" "opkg install unzip..."
+    opkg update
+    install_pkg "unzip" "opkg install unzip..."
 
     VDSM_BOOT=$(echo "$VDSM_BOOT" | head -c -5)
     log "Extract $VDSM_BOOT_FILE..." "Extraindo $VDSM_BOOT_FILE..."
